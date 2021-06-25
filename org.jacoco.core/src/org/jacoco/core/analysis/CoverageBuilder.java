@@ -12,14 +12,12 @@
  *******************************************************************************/
 package org.jacoco.core.analysis;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import org.jacoco.core.internal.analysis.BundleCoverageImpl;
 import org.jacoco.core.internal.analysis.SourceFileCoverageImpl;
+import org.jacoco.core.internal.diff.ClassInfo;
+import org.jacoco.core.internal.diff.CodeDiff;
 
 /**
  * Builder for hierarchical {@link ICoverageNode} structures from single
@@ -41,6 +39,8 @@ public class CoverageBuilder implements ICoverageVisitor {
 
 	private final Map<String, ISourceFileCoverage> sourcefiles;
 
+	public static List<ClassInfo>  classInfos;
+
 	/**
 	 * Create a new builder.
 	 *
@@ -49,7 +49,16 @@ public class CoverageBuilder implements ICoverageVisitor {
 		this.classes = new HashMap<String, IClassCoverage>();
 		this.sourcefiles = new HashMap<String, ISourceFileCoverage>();
 	}
-
+	/**
+	 * 增量代码 new builder
+	 * **/
+	public CoverageBuilder(String newBranchName, String oldBranchName,String gitUsername,String gitPassword,String remoteGitUrl) {
+		this.classes = new HashMap<String, IClassCoverage>();
+		this.sourcefiles = new HashMap<String, ISourceFileCoverage>();
+		if (classInfos == null || classInfos.isEmpty()){
+			classInfos = CodeDiff.diffBranchToBranch(newBranchName, oldBranchName,gitUsername,gitPassword,remoteGitUrl);
+		}
+	}
 	/**
 	 * Returns all class nodes currently contained in this builder.
 	 *

@@ -18,9 +18,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.jgit.util.StringUtils;
 import org.jacoco.cli.internal.Command;
 import org.jacoco.core.analysis.Analyzer;
 import org.jacoco.core.analysis.CoverageBuilder;
@@ -72,6 +74,21 @@ public class Report extends Command {
 	@Option(name = "--html", usage = "output directory for the HTML report", metaVar = "<dir>")
 	File html;
 
+	@Option(name = "--gitusername", usage = "gitusername of project for this diff report", metaVar = "<gitusername>")
+	String gitusername;
+
+	@Option(name = "--gitpassword", usage = "gitpsw of project for this diff report", metaVar = "<gitpassword>")
+	String gitpassword;
+
+	@Option(name = "--gitremoteurl", usage = "git remote url of project for this diff report", metaVar = "<gitremoteurl>")
+	String gitremoteurl;
+
+	@Option(name = "--newbranchname", usage = "newbranchname of project for this diff report", metaVar = "<newbranchname>")
+	String newbranchname;
+
+	@Option(name = "--oldbranchname", usage = "oldbranchname of project for this diff report", metaVar = "<oldbranchname>")
+	String oldbranchname;
+
 	@Override
 	public String description() {
 		return "Generate reports in different formats by reading exec and Java class files.";
@@ -101,10 +118,26 @@ public class Report extends Command {
 		}
 		return loader;
 	}
-
+	/**
+	 * 检查是否为增量代码覆盖
+	 * @return
+	 */
+	private boolean isDiff(PrintWriter out){
+		return !StringUtils.isEmptyOrNull(gitremoteurl)
+				&& !StringUtils.isEmptyOrNull(gitusername)
+				&& !StringUtils.isEmptyOrNull(gitpassword)
+				&& !StringUtils.isEmptyOrNull(newbranchname)
+				&& !StringUtils.isEmptyOrNull(oldbranchname);
+	}
 	private IBundleCoverage analyze(final ExecutionDataStore data,
 			final PrintWriter out) throws IOException {
-		final CoverageBuilder builder = new CoverageBuilder();
+		final CoverageBuilder builder;
+		if (isDiff(out)){
+			builder = new CoverageBuilder(newbranchname,oldbranchname,gitusername,gitpassword,gitremoteurl);
+			out.println("[!!!INFO] === start deal with Incremental code coverage ===");
+		}else{
+			builder = new CoverageBuilder();
+		}
 		final Analyzer analyzer = new Analyzer(data, builder);
 		for (final File f : classfiles) {
 			analyzer.analyzeAll(f);

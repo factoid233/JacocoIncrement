@@ -6,3 +6,4 @@ org.jacoco.agent/src/jacocoagent.jar
 .idea
 *.iml
 **/*.iml
+org.jacoco.doc/.settings
