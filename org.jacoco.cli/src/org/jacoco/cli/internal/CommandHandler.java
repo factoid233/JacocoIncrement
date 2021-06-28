@@ -45,6 +45,12 @@ public class CommandHandler extends OptionHandler<Command> {
 				}, setter);
 	}
 
+	/**
+	 * 确定使用哪个命令行类(Report,Dump.....)
+	 * @param params
+	 * @return
+	 * @throws CmdLineException
+	 */
 	@Override
 	public int parseArguments(final Parameters params) throws CmdLineException {
 		final String subCmd = params.getParameter(0);
@@ -52,6 +58,7 @@ public class CommandHandler extends OptionHandler<Command> {
 		for (final Command c : AllCommands.get()) {
 			if (c.name().equals(subCmd)) {
 				parseSubArguments(c, params);
+				//接口实现方法 添加实现类方法command
 				setter.addValue(c);
 				return params.size(); // consume all the remaining tokens
 			}
