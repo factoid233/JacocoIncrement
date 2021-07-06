@@ -74,20 +74,20 @@ public class Report extends Command {
 	@Option(name = "--html", usage = "output directory for the HTML report", metaVar = "<dir>")
 	File html;
 
-	@Option(name = "--gitusername", usage = "gitusername of project for this diff report", metaVar = "<gitusername>")
-	String gitusername;
+	@Option(name = "--gitlabHost", usage = "gitlab host of project for this diff report", metaVar = "<gitlabHost>")
+	String gitlabHost;
 
-	@Option(name = "--gitpassword", usage = "gitpsw of project for this diff report", metaVar = "<gitpassword>")
-	String gitpassword;
+	@Option(name = "--gitlabProjectId", usage = "gitlab project id of project for this diff report", metaVar = "<gitlabProjectId>")
+	String gitlabProjectId;
 
-	@Option(name = "--gitremoteurl", usage = "git remote url of project for this diff report", metaVar = "<gitremoteurl>")
-	String gitremoteurl;
+	@Option(name = "--gitlabToken", usage = "gitlab token of project for this diff report", metaVar = "<gitlabToken>")
+	String gitlabToken;
 
-	@Option(name = "--newbranchname", usage = "newbranchname of project for this diff report", metaVar = "<newbranchname>")
-	String newbranchname;
+	@Option(name = "--fromCommit", usage = "The commit SHA or branch name", metaVar = "<fromCommit>")
+	String fromCommit;
 
-	@Option(name = "--oldbranchname", usage = "oldbranchname of project for this diff report", metaVar = "<oldbranchname>")
-	String oldbranchname;
+	@Option(name = "--toCommit", usage = "The commit SHA or branch name", metaVar = "<toCommit>")
+	String toCommit;
 
 	@Override
 	public String description() {
@@ -123,17 +123,14 @@ public class Report extends Command {
 	 * @return
 	 */
 	private boolean isDiff(PrintWriter out){
-		return !StringUtils.isEmptyOrNull(gitremoteurl)
-				&& !StringUtils.isEmptyOrNull(gitusername)
-				&& !StringUtils.isEmptyOrNull(gitpassword)
-				&& !StringUtils.isEmptyOrNull(newbranchname)
-				&& !StringUtils.isEmptyOrNull(oldbranchname);
+		List<String> stringList = new ArrayList<>(Arrays.asList(gitlabHost,gitlabToken,gitlabProjectId,fromCommit,toCommit));
+		return stringList.stream().noneMatch(StringUtils::isEmptyOrNull);
 	}
 	private IBundleCoverage analyze(final ExecutionDataStore data,
 			final PrintWriter out) throws IOException {
 		final CoverageBuilder builder;
 		if (isDiff(out)){
-			builder = new CoverageBuilder(newbranchname,oldbranchname,gitusername,gitpassword,gitremoteurl);
+			builder = new CoverageBuilder(gitlabHost,gitlabProjectId,gitlabToken,fromCommit,toCommit);
 			out.println("[!!!INFO] === start deal with Incremental code coverage ===");
 		}else{
 			builder = new CoverageBuilder();

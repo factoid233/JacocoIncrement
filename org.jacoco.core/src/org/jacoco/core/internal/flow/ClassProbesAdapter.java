@@ -13,8 +13,7 @@
 package org.jacoco.core.internal.flow;
 
 import org.jacoco.core.analysis.CoverageBuilder;
-import org.jacoco.core.internal.diff.ClassInfo;
-import org.jacoco.core.internal.diff.MethodInfo;
+import org.jacoco.core.internal.diff2.DiffMain;
 import org.jacoco.core.internal.instr.InstrSupport;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -78,7 +77,7 @@ public class ClassProbesAdapter extends ClassVisitor
 //			methodProbes = mv;
 //		}
 		//	增量计算覆盖率
-		if (mv !=null && isContainsMethod(name,CoverageBuilder.classInfos) ) {
+		if (mv !=null && DiffMain.is_contain_method(this.name,name,desc,CoverageBuilder.classInfos) ) {
 			methodProbes = mv;
 		} else {
 			// We need to visit the method in any case, otherwise probe ids
@@ -117,24 +116,6 @@ public class ClassProbesAdapter extends ClassVisitor
 
 	public int nextId() {
 		return counter++;
-	}
-	private boolean isContainsMethod(String currentMethod, List<ClassInfo> classInfos) {
-		if (classInfos== null || classInfos.isEmpty()) {
-			return true;
-		}
-		String currentClassName = name.replaceAll("/",".");
-		for (ClassInfo classInfo : classInfos) {
-			String className = classInfo.getPackages() + "." + classInfo.getClassName();
-			if (currentClassName.equals(className)) {
-				for (MethodInfo methodInfo: classInfo.getMethodInfos()) {
-					String methodName = methodInfo.getMethodName();
-					if (currentMethod.equals(methodName)) {
-						return true;
-					}
-				}
-			}
-		}
-		return false;
 	}
 
 }
