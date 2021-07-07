@@ -2,6 +2,7 @@ package org.jacoco.core.internal.diff2;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import lombok.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class DiffParse {
+    @NonNull
     public static List<DiffInfo> parse(JSONArray data_array){
         List<DiffInfo> diffInfos = new ArrayList<>();
         for (Object data:data_array){

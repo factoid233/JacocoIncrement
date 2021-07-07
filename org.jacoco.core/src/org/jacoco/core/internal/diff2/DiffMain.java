@@ -62,10 +62,14 @@ public class DiffMain {
         });
     }
     public static Boolean is_contain_method(String location, String current_method,String current_method_args,Map<String, List<MethodInfo>> diffs){
+        if (diffs == null){
+            //如果diffs为null走全量覆盖率
+            return true;
+        }
         if (diffs.containsKey(location)){
             List<MethodInfo> methods = diffs.get(location);
             for (MethodInfo method:methods){
-                // 判断方法是否在diff中 选择方法
+                // 判断方法是否在diff 类中 选择方法
                 if (current_method.equals(method.getMethodName())){
                     return checkArgs(current_method_args,method.getArgs());
                 }
