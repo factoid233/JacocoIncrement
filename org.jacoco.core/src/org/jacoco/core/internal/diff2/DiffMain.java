@@ -36,6 +36,11 @@ public class DiffMain {
         data.removeIf(file -> file.getType() == DiffType.DELETED || file.getType() == DiffType.EMPTY);
         data.removeIf(file->!file.getFile_path().endsWith(".java"));
     }
+
+    /**
+     * 将diff出的行数转换成方法
+     * @param data
+     */
     private void parse_diff_method(List<DiffInfo> data){
         data.forEach(item ->{
             String file_path = item.getFile_path();
@@ -46,9 +51,16 @@ public class DiffMain {
             lines_to_method(diff_tree,diff_lines);
         });
     }
+
+    /**
+     * 将行和方法对应上
+     * @param diff_tree
+     * @param diff_lines
+     */
     private void lines_to_method(List<ClassInfo> diff_tree, List<Integer> diff_lines){
         diff_tree.forEach(classInfo->{
             List<MethodInfo> diff_exist_method = new ArrayList<>();
+            //拼接处jacoco visitmethod方法中的name 后续可以直接根据Map的key取到其方法值
             String name = classInfo.getPackages().replace(".","/") + "/" + classInfo.getClassName();
             classInfo.getMethodInfos().forEach(methodInfo -> {
                 List<Integer> method_lines = methodInfo.getLines();
@@ -77,6 +89,14 @@ public class DiffMain {
         }
     return false;
     }
+
+    /**
+     * 判断参数是否相同，主要通过参数类型以及个数判断
+     * 暂未对返回类型做校验判断，后期可优化
+     * @param current_method_args_src
+     * @param reference_args
+     * @return
+     */
     private static Boolean checkArgs(String current_method_args_src,List<ArgInfo> reference_args){
         Type[] current_method_args = Type.getArgumentTypes(current_method_args_src);
         //判断参数个数是否为空
@@ -121,6 +141,11 @@ public class DiffMain {
         }
         return false;
     }
+
+    /**
+     * jvm 短类型标识转换
+     * @return
+     */
     private static Map<String,String> type_map(){
         Map<String,String> map = new HashMap<>();
         String[] longName = {"boolean","byte","char","short","int","long","float","double","int[]","float[]"};

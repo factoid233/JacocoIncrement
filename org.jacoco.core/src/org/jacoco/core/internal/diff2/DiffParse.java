@@ -48,7 +48,7 @@ public class DiffParse {
     /**
      * 解析diff内容
      * @param data
-     * @return
+     * @return diff变动的行数
      */
     private static List<Integer> parseDiffContent(String data){
         Pattern pattern = Pattern.compile("@@(.+?)@@");

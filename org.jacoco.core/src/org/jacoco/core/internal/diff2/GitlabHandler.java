@@ -13,6 +13,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.*;
 
+/**
+ * gitlab接口操作
+ */
 public class GitlabHandler {
     private final String token;
     private final String project_id;
@@ -40,7 +43,13 @@ public class GitlabHandler {
         headers = Arrays.asList("PRIVATE-TOKEN", "ArW2x6am9FiZVUizt6M7");
     }
 
-
+    /**
+     * 封装get请求方法
+     * @param uri
+     * @param params
+     * @param headers
+     * @return
+     */
     public JSONObject get(String uri, Map<String,String> params, List<String> headers) {
         HttpUrl.Builder url_builder = new HttpUrl.Builder()
                 .scheme(http_type)
@@ -93,6 +102,7 @@ public class GitlabHandler {
     }
 
     /**
+     * 获取两个commit之间的不同
      *  @param from The commit SHA or branch name.
      * @param to The commit SHA or branch name.
      */
