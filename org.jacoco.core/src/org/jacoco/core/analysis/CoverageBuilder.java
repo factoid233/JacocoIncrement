@@ -16,9 +16,8 @@ import java.util.*;
 
 import org.jacoco.core.internal.analysis.BundleCoverageImpl;
 import org.jacoco.core.internal.analysis.SourceFileCoverageImpl;
-import org.jacoco.core.internal.diff2.ClassInfo;
-import org.jacoco.core.internal.diff2.DiffMain;
-import org.jacoco.core.internal.diff2.MethodInfo;
+import org.jacoco.core.internal.diff3.DiffMain;
+import org.jacoco.core.internal.diff3.dto.MethodInfoDto;
 
 /**
  * Builder for hierarchical {@link ICoverageNode} structures from single
@@ -40,7 +39,7 @@ public class CoverageBuilder implements ICoverageVisitor {
 
 	private final Map<String, ISourceFileCoverage> sourcefiles;
 
-	public static Map<String,List<MethodInfo>>  classInfos;
+	public static Map<String,List<MethodInfoDto>>  classInfos;
 
 	/**
 	 * Create a new builder.
@@ -53,11 +52,11 @@ public class CoverageBuilder implements ICoverageVisitor {
 	/**
 	 * 增量代码 new builder
 	 * **/
-	public CoverageBuilder(String host, String project_id, String token, String from_commit, String to_commit) {
+	public CoverageBuilder(String gitRepositoryPath, String from_commit, String to_commit) {
 		this.classes = new HashMap<String, IClassCoverage>();
 		this.sourcefiles = new HashMap<String, ISourceFileCoverage>();
 		if (classInfos == null || classInfos.isEmpty()){
-			DiffMain diffMain = new DiffMain(host, project_id, token, from_commit, to_commit);
+			DiffMain diffMain = new DiffMain(gitRepositoryPath, from_commit, to_commit);
 			classInfos = diffMain.run_diff();
 		}
 	}

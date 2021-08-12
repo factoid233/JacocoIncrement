@@ -13,7 +13,7 @@
 package org.jacoco.core.internal.flow;
 
 import org.jacoco.core.analysis.CoverageBuilder;
-import org.jacoco.core.internal.diff2.DiffMain;
+import org.jacoco.core.internal.diff3.DiffMain;
 import org.jacoco.core.internal.instr.InstrSupport;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;

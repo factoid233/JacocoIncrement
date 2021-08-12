@@ -1,65 +1,69 @@
-package org.jacoco.core.internal.diff2;
+package org.jacoco.core.internal.diff3;
 
-import com.alibaba.fastjson.JSONArray;
+
+import org.jacoco.core.internal.diff3.dto.ArgInfoDto;
+import org.jacoco.core.internal.diff3.dto.ClassInfoDto;
+import org.jacoco.core.internal.diff3.dto.DiffEntryDto;
+import org.jacoco.core.internal.diff3.dto.MethodInfoDto;
 import org.objectweb.asm.Type;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class DiffMain {
     private final String from_commit;
     private final String to_commit;
-    private final GitlabHandler git;
-    private final Map<String,List<MethodInfo>> diff_class_exist_method = new HashMap<>();
+    private final JGitHandler git;
+//    private final Map<String,List<MethodInfoDto>> diff_class_exist_method = new HashMap<>();
 
-    public DiffMain(String host, String project_id, String token, String from_commit, String to_commit){
+    public DiffMain(String gitRepositoryPath, String from_commit, String to_commit){
         this.from_commit = from_commit;
         this.to_commit = to_commit;
-        this.git = new GitlabHandler(host,project_id,token);
+        this.git = new JGitHandler(gitRepositoryPath);
     }
-    public Map<String, List<MethodInfo>> run_diff(){
-        JSONArray diff_src = git.get_commit_diff(from_commit,to_commit);
-        List<DiffInfo> diff = DiffParse.parse(diff_src);
-        filter(diff);
-        parse_diff_method(diff);
-        return diff_class_exist_method;
+    public Map<String, List<MethodInfoDto>> run_diff(){
+        List<DiffEntryDto> diff_src = git.get_diff(from_commit,to_commit);
+        diff_src = diff_src.stream()
+                //过滤不是java结尾的diff
+                .filter(file->file.getFilePath().endsWith(".java"))
+                .collect(Collectors.toList());
+        return parse_diff_method(diff_src);
     }
 
-    /**
-     * 过滤类型为 空白的、 删除的 diff
-     * 过滤不是java结尾的diff
-     * @param data
-     */
-    private void filter(List<DiffInfo> data){
-        data.removeIf(file -> file.getType() == DiffType.DELETED || file.getType() == DiffType.EMPTY);
-        data.removeIf(file->!file.getFile_path().endsWith(".java"));
-    }
 
     /**
      * 将diff出的行数转换成方法
      * @param data
+     * @return
      */
-    private void parse_diff_method(List<DiffInfo> data){
-        data.forEach(item ->{
-            String file_path = item.getFile_path();
-            String java_text = git.get_file_content(file_path, to_commit);
+    private Map<String, List<MethodInfoDto>> parse_diff_method(List<DiffEntryDto> data){
+        git.gitCheckout(to_commit);
+        Map<String,List<MethodInfoDto>> diff_class_exist_method = new HashMap<>();
+        for(DiffEntryDto item:data){
+            String file_path = item.getFilePath();
+            String java_text = git.getFileContent(file_path);
             ASTParse ast_parse = new ASTParse(file_path,java_text);
             List<Integer> diff_lines = item.getLines();
-            List<ClassInfo> diff_tree = ast_parse.parse_code_class();
-            lines_to_method(diff_tree,diff_lines);
-        });
+            List<ClassInfoDto> diff_tree = ast_parse.parse_code_class();
+            lines_to_method(diff_tree,diff_lines,diff_class_exist_method);
+        };
+        return diff_class_exist_method;
     }
 
     /**
      * 将行和方法对应上
      * @param diff_tree
      * @param diff_lines
+     * @return
      */
-    private void lines_to_method(List<ClassInfo> diff_tree, List<Integer> diff_lines){
+    private void lines_to_method(List<ClassInfoDto> diff_tree, List<Integer> diff_lines,
+                                                             Map<String,List<MethodInfoDto>> diff_class_exist_method){
+
         diff_tree.forEach(classInfo->{
-            List<MethodInfo> diff_exist_method = new ArrayList<>();
+            List<MethodInfoDto> diff_exist_method = new ArrayList<>();
             //拼接处jacoco visitmethod方法中的name 后续可以直接根据Map的key取到其方法值
             String name = classInfo.getPackages().replace(".","/") + "/" + classInfo.getClassName();
             classInfo.getMethodInfos().forEach(methodInfo -> {
@@ -70,17 +74,17 @@ public class DiffMain {
                     diff_exist_method.add(methodInfo);
                 }
             });
-            diff_class_exist_method.put(name,diff_exist_method);
+            if (diff_exist_method.size() > 0) diff_class_exist_method.put(name,diff_exist_method);
         });
     }
-    public static Boolean is_contain_method(String location, String current_method,String current_method_args,Map<String, List<MethodInfo>> diffs){
+    public static Boolean is_contain_method(String location, String current_method,String current_method_args,Map<String, List<MethodInfoDto>> diffs){
         if (diffs == null){
             //如果diffs为null走全量覆盖率
             return true;
         }
         if (diffs.containsKey(location)){
-            List<MethodInfo> methods = diffs.get(location);
-            for (MethodInfo method:methods){
+            List<MethodInfoDto> methods = diffs.get(location);
+            for (MethodInfoDto method:methods){
                 // 判断方法是否在diff 类中 选择方法
                 if (current_method.equals(method.getMethodName())){
                     return checkArgs(current_method_args,method.getArgs());
@@ -97,7 +101,7 @@ public class DiffMain {
      * @param reference_args
      * @return
      */
-    private static Boolean checkArgs(String current_method_args_src,List<ArgInfo> reference_args){
+    private static Boolean checkArgs(String current_method_args_src,List<ArgInfoDto> reference_args){
         Type[] current_method_args = Type.getArgumentTypes(current_method_args_src);
         //判断参数个数是否为空
         if (current_method_args.length ==0 && reference_args.size() ==0){

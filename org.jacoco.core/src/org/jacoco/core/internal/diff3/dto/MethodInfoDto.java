@@ -1,11 +1,11 @@
-package org.jacoco.core.internal.diff2;
+package org.jacoco.core.internal.diff3.dto;
 
 import lombok.Data;
 
 import java.util.List;
 
 @Data
-public class MethodInfo {
+public class MethodInfoDto {
     /**
      * 方法名
      */
@@ -13,15 +13,9 @@ public class MethodInfo {
     /**
      * 方法参数
      */
-    private List<ArgInfo> args;
+    private List<ArgInfoDto> args;
     /**
      * 行数范围
      */
     private List<Integer> lines;
-}
-
-@Data
-class ArgInfo{
-    public String argName;
-    public String type;
 }

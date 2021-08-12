@@ -1,11 +1,11 @@
-package org.jacoco.core.internal.diff2;
+package org.jacoco.core.internal.diff3.dto;
 
 import lombok.Data;
 
 import java.util.List;
 
 @Data
-public class ClassInfo {
+public class ClassInfoDto {
     /**
      * java文件
      */
@@ -22,7 +22,7 @@ public class ClassInfo {
     /**
      * 类中的方法
      */
-    private List<MethodInfo> methodInfos;
+    private List<MethodInfoDto> methodInfos;
     /**
      * 行数范围
      */

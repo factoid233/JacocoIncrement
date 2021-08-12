@@ -74,14 +74,8 @@ public class Report extends Command {
 	@Option(name = "--html", usage = "output directory for the HTML report", metaVar = "<dir>")
 	File html;
 
-	@Option(name = "--gitlabHost", usage = "gitlab host of project for this diff report", metaVar = "<gitlabHost>")
-	String gitlabHost;
-
-	@Option(name = "--gitlabProjectId", usage = "gitlab project id of project for this diff report", metaVar = "<gitlabProjectId>")
-	String gitlabProjectId;
-
-	@Option(name = "--gitlabToken", usage = "gitlab token of project for this diff report", metaVar = "<gitlabToken>")
-	String gitlabToken;
+	@Option(name = "--gitRepositoryPath", usage = "gitRepositoryPath of project for this diff report", metaVar = "<gitRepositoryPath>")
+	String gitRepositoryPath;
 
 	@Option(name = "--fromCommit", usage = "The commit SHA or branch name", metaVar = "<fromCommit>")
 	String fromCommit;
@@ -123,14 +117,14 @@ public class Report extends Command {
 	 * @return
 	 */
 	private boolean isDiff(PrintWriter out){
-		List<String> stringList = new ArrayList<>(Arrays.asList(gitlabHost,gitlabToken,gitlabProjectId,fromCommit,toCommit));
+		List<String> stringList = new ArrayList<>(Arrays.asList(gitRepositoryPath,fromCommit,toCommit));
 		return stringList.stream().noneMatch(StringUtils::isEmptyOrNull);
 	}
 	private IBundleCoverage analyze(final ExecutionDataStore data,
 			final PrintWriter out) throws IOException {
 		final CoverageBuilder builder;
 		if (isDiff(out)){
-			builder = new CoverageBuilder(gitlabHost,gitlabProjectId,gitlabToken,fromCommit,toCommit);
+			builder = new CoverageBuilder(gitRepositoryPath,fromCommit,toCommit);
 			out.println("[!!!INFO] === start deal with Incremental code coverage ===");
 		}else{
 			builder = new CoverageBuilder();
