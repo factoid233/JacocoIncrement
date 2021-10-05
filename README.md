@@ -35,5 +35,4 @@ java -jar org.jacoco.cli-0.8.7-nodeps.jar \
   --fromCommit master \
   --toCommit develop
 ```
-- --gitremoteurl 要使用http的方式
-- [gitRepositoryPath,fromCommit,gitremoteurl,toCommit] 这些参数均填写正确才会触发增量代码模式，否则时全量模式
+- [gitRepositoryPath, fromCommit, toCommit] 这些参数均填写正确才会触发增量代码模式，否则时全量模式
