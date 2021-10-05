@@ -31,11 +31,9 @@ java -jar org.jacoco.cli-0.8.7-nodeps.jar \
   --classfiles /your/java/classes/path/.../classes \
   --sourcefiles /your/java/src/path/.../main/java \
   --html /your/output/dir/path \
-  --gitusername xxx \
-  --gitpassword xxx \
-  --gitremoteurl http://your/git/path.git \ 
-  --newbranchname dev \ 
-  --oldbranchname master 
+  --gitRepositoryPath /your/gitrepository/path \ 
+  --fromCommit master \
+  --toCommit develop
 ```
 - --gitremoteurl 要使用http的方式
-- [gitusername,gitpassword,gitremoteurl,newbranchname,oldbranchname] 这些参数均填写正确才会触发增量代码模式，否则时全量模式
+- [gitRepositoryPath,fromCommit,gitremoteurl,toCommit] 这些参数均填写正确才会触发增量代码模式，否则时全量模式
